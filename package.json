@@ -1,0 +1,17 @@
+  {
+  "name": "99tech",
+  "version": "1.0.0",
+  "scripts": {
+    "test-ui": "TESTS_ENV_CONFIG=orange-hrm-demo npx playwright test -g 'ui/*' --headed --project=chromium --workers=1",
+    "test-api": "TESTS_ENV_CONFIG=orange-hrm-demo npx playwright test -g 'api/*' --project=chromium --workers=1",
+    "report": "npx playwright show-report"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.54.1",
+    "@types/node": "^24.0.15"
+  }
+}

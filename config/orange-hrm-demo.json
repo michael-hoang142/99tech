@@ -1,0 +1,9 @@
+{
+    "baseUrl": "https://opensource-demo.orangehrmlive.com/",
+    "env": "demo",
+    "tenant": "orange-hrm",
+    "account": {
+        "username": "Admin",
+        "password": "admin123"
+    }
+}

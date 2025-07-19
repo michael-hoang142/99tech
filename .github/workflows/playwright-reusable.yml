@@ -1,0 +1,154 @@
+name: ~ Playwright Reusable Custom Tenant, Tests Location & Regex Based Workflow
+run-name: Running tests from location '${{ inputs.custom-test-location }}' limited by '${{ inputs.custom-regex }}' regex on '${{ inputs.business-tenant }}' tenant with '${{ inputs.env-config }}' configuration - ghid-${{ github.run_id }}-${{ github.run_attempt }}
+on:
+ workflow_call:
+  inputs:
+   business-tenant:
+    description: 'Business tenant to run tests against it'
+    required: true
+    default: 'orange'
+    type: string
+
+   env-config:
+    description: 'App environment configuration to run tests against it'
+    required: true
+    default: 'demo'
+    type: string
+
+   test-scope:
+    description: 'Test scope to run tests against it'
+    required: true
+    default: 'regression'
+    type: string
+
+   job-timeout-mins:
+    description: 'Timeout for running test on separate tenant'
+    required: false
+    default: 10
+    type: number
+
+   matrix-shards-json:
+    description: 'Test shards matrix in JSON format'
+    default: '{"shard": ["1/5", "2/5", "3/5", "4/5", "5/5"]}'
+    type: string
+    required: false
+
+   custom-test-location:
+    description: 'Files (or folder) to filter tests - path from the project root'
+    required: true
+    type: string
+    default: 'tests'
+
+   custom-regex:
+    description: 'Regular expression to filter tests out of provided tests location'
+    required: true
+    type: string
+    default: '.*'
+
+jobs:
+ playwright-tests:
+  timeout-minutes: ${{ inputs.job-timeout-mins }}
+  runs-on: ubuntu-latest
+  strategy:
+   fail-fast: false
+   matrix: ${{ fromJson(inputs.matrix-shards-json) }}
+  steps:
+   - uses: actions/checkout@v4
+   - uses: actions/setup-node@v4
+     with:
+      node-version: 18
+
+   - name: Install dependencies
+     run: npm ci
+
+   - name: Install Playwright browsers
+     run: npx playwright install --with-deps
+
+   - name: Run Playwright tests
+     env:
+      TESTS_ENV_CONFIG: ${{ inputs.env-config }}
+      PWTEST_BLOB_REPORT_NAME: ${{ inputs.business-tenant }}
+     run: |
+      npx playwright test ${{ inputs.custom-test-location}} --grep "(?=.*@${{ inputs.business-tenant }})(?=.*@${{ inputs.env-config }})(?=.*@${{ inputs.test-scope }})"  --shard ${{ matrix.shard }} --workers 1
+      if [ $exit_code -eq 0 ]; then
+        echo "Tests passed"
+      elif [ $exit_code -eq 130 ]; then
+        echo "The operation was canceled (manual cancellation)"
+        exit 0  # Optionally, you can force it to fail if needed
+      elif [ $exit_code -eq 137 ]; then
+        echo "The operation was killed (possibly due to resource constraints)"
+        exit 0  # Mark job as failed
+      else
+        echo "Some tests failed with exit code $exit_code"
+        exit $exit_code  # Exit with the original error code
+      fi  # Ensure this closing fi is present
+   - name: Create password protected 7z archive containing playwright traces
+     if: always()
+     shell: bash
+     run: |
+      f=$(basename ./blob-report/* .zip)
+      echo "BLOB_REPORT_FILE_BASENAME=$f" >> $GITHUB_ENV 
+      7z a ./${{ inputs.env-config }}-blob-secured-$f.7z ./blob-report/* -p"${{ secrets.ZIP_ARTIFACTS_PASSWORD }}"
+
+   - name: Upload password protected 7z archive to GitHub Actions Artifact
+     if: always()
+     uses: actions/upload-artifact@v4
+     with:
+      name: tenant-shard-based-blob-secured-artifact-${{ inputs.env-config }}-${{ env.BLOB_REPORT_FILE_BASENAME }}
+      path: ${{ inputs.env-config }}-blob-secured-${{ env.BLOB_REPORT_FILE_BASENAME }}.7z
+      retention-days: 1
+
+ merge-reports:
+  # Merge reports after playwright-tests, even if some shards have failed,
+  # but avoid merging in case if this reusable workflow will be called with
+  # 'is-internal-merging-required' set to false
+  if: ${{ (failure() || success()) && inputs.is-internal-merging-required }}
+  needs: [playwright-tests]
+
+  runs-on: ubuntu-latest
+  steps:
+   - uses: actions/checkout@v4
+
+   - name: Install dependencies
+     run: npm ci
+
+   - name: Download password protected 7z archives from GitHub Actions Artifact
+     uses: actions/download-artifact@v4
+     with:
+      path: all-blob-reports-secured-downloaded
+      pattern: tenant-shard-based-blob-secured-artifact-*
+      merge-multiple: true
+   - run: ls -R all-blob-reports-secured-downloaded
+
+   - name: Upload all password protected merged 7z archive to GitHub Actions Artifact
+     uses: actions/upload-artifact/merge@v4
+     with:
+      name: all-blob-reports-secured-artifact-attempt-${{ github.run_attempt }}
+      pattern: tenant-shard-based-blob-secured-artifact-*
+      delete-merged: true
+      retention-days: 1
+
+   - name: Extract password-protected Playwright traces archives
+     run: |
+      FILES="all-blob-reports-secured-downloaded/*"
+      for f in $FILES
+      do
+      echo "Processing $f file..."
+      # take action on each file. $f store current file name
+      7z x $f -p"${{ secrets.ZIP_ARTIFACTS_PASSWORD }}" -o./all-blob-reports-extracted
+      done
+
+   - name: Merge into HTML Report
+     run: npx playwright merge-reports --reporter html,list ./all-blob-reports-extracted
+
+   - name: Password protect Playwright HTML report
+     if: always()
+     shell: bash
+     run: 7z a ./html-report-secured-${{ github.run_attempt }}.7z ./playwright-report/* -p"${{ secrets.ZIP_ARTIFACTS_PASSWORD }}"
+
+   - name: Upload password protected HTML report to GitHub Actions Artifact
+     uses: actions/upload-artifact@v4
+     with:
+      name: html-report-secured-artifact-attempt-${{ github.run_attempt }}
+      path: html-report-secured-${{ github.run_attempt }}.7z
+      retention-days: 90
