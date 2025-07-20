@@ -6,7 +6,7 @@ import { ENVTag, ScopeTag, TenantTag } from 'enums/Tags';
 const data = ["someRandomUsername", "124abc@amgak,cim", "24859123"]
 
 data.forEach((userName) => {
-  test.only(`Search with invalid userName = "${userName}" ${TenantTag.ORANGE} ${ENVTag.DEMO} ${ScopeTag.SMOKE} ${ScopeTag.REGRESSION}`, async ({ authenticatedDashBoardPage, adminPage}) => {
+  test(`Search with invalid userName = "${userName}" ${TenantTag.ORANGE} ${ENVTag.DEMO} ${ScopeTag.SMOKE} ${ScopeTag.REGRESSION}`, async ({ authenticatedDashBoardPage, adminPage}) => {
     await authenticatedDashBoardPage.goToPage('Admin');
     
     await adminPage.inputUserName(userName);

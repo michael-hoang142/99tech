@@ -62,7 +62,7 @@ test(`Search with Status only ${TenantTag.ORANGE} ${ENVTag.DEMO} ${ScopeTag.SMOK
 });
 
 
-test.only(`Search with all fields ${TenantTag.ORANGE} ${ENVTag.DEMO} ${ScopeTag.SMOKE} ${ScopeTag.REGRESSION}`, async ({ authenticatedDashBoardPage, adminPage}) => {
+test(`Search with all fields ${TenantTag.ORANGE} ${ENVTag.DEMO} ${ScopeTag.SMOKE} ${ScopeTag.REGRESSION}`, async ({ authenticatedDashBoardPage, adminPage}) => {
   const userName = 'Admin';
   const userRole = 'Admin';
   const status = 'Enabled';
