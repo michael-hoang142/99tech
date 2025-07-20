@@ -90,7 +90,7 @@ jobs:
   # Merge reports after playwright-tests, even if some shards have failed,
   # but avoid merging in case if this reusable workflow will be called with
   # 'is-internal-merging-required' set to false
-  if: ${{ (failure() || success()) && inputs.is-internal-merging-required }}
+  if: ${{ (failure() || success()) }}
   needs: [playwright-tests]
 
   runs-on: ubuntu-latest
