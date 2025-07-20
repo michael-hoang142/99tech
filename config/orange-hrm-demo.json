@@ -1,5 +1,5 @@
 {
-    "baseUrl": "https://opensource-demo.orangehrmlive.com/",
+    "baseUrl": "https://opensource-demo.orangehrmlive.com",
     "env": "demo",
     "tenant": "orange-hrm",
     "account": {
