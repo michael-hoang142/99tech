@@ -43,11 +43,9 @@ jobs:
  playwright-custom-tests:
   uses: ./.github/workflows/playwright-reusable.yml
   with:
-   business-tenant: ${{ inputs.business-tenant }}
    env-config: ${{ inputs.env-config }}
-   custom-test-location: ${{ inputs.custom-test-location }}
-   custom-regex: ${{ inputs.custom-regex }}
-   matrix-shards-json: ${{ inputs.matrix-shards-json }}
+   test-scope: ${{ inputs.test-scope }}
    job-timeout-mins: ${{ fromJSON(inputs.job-timeout-mins) }}
-  
+   matrix-shards-json: ${{ inputs.matrix-shards-json }}
+   custom-test-location: ${{ inputs.custom-test-location }}
    secrets: inherit
