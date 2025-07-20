@@ -31,6 +31,7 @@ This repository demonstrates basic Playwright techniques using [demoqa.com](http
 - Shared logged-in state via fixtures
 - Shared token management via fixtures
 - CI available & manage by tag & config file
+- Scaling ready through matrix shards, able to apply thread as well but I prefer to keep shard only
 
 **Not supported:**
 - .env file due to no integration with 3rd service
