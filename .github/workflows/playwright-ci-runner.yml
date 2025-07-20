@@ -48,5 +48,4 @@ jobs:
    job-timeout-mins: ${{ fromJSON(inputs.job-timeout-mins) }}
    matrix-shards-json: ${{ inputs.matrix-shards-json }}
    custom-test-location: ${{ inputs.custom-test-location }}
-  secrets:
-   ZIP_ARTIFACTS_PASSWORD: ${{ secrets.ZIP_ARTIFACTS_PASSWORD }}
+  secrets: inherit
