@@ -22,7 +22,7 @@
 
 ## About the Project
 
-This repository demonstrates basic Playwright techniques using [demoqa.com](https://demoqa.com/).
+This repository demonstrates basic Playwright techniques using [demoqa.com](https://demoqa.com/) for API testing & https://opensource-demo.orangehrmlive.com/ for UI.
 
 **Key Features:**
 - Page Object Model (POM)
@@ -30,6 +30,11 @@ This repository demonstrates basic Playwright techniques using [demoqa.com](http
 - Data-driven testing
 - Shared logged-in state via fixtures
 - Shared token management via fixtures
+- CI available & manage by tag & config file
+
+**Not supported:**
+- .env file due to no integration with 3rd service
+- No masked/hidden on credentials cause I want it develop fastest :p 
 
 ## Getting Started
 
