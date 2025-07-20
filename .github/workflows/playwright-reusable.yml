@@ -57,7 +57,7 @@ jobs:
       TESTS_ENV_CONFIG: ${{ inputs.env-config }}
       PWTEST_BLOB_REPORT_NAME: ${{ inputs.env-config }}
      run: |
-      npx playwright test ${{ inputs.custom-test-location}} --grep "(?=.*@${{ inputs.business-tenant }})(?=.*@${{ inputs.test-scope }})"  --shard ${{ matrix.shard }} --workers 1
+      npx playwright test ${{ inputs.custom-test-location}} --grep "(?=.*@${{ inputs.test-scope }})"  --shard ${{ matrix.shard }} --workers 1
       if [ $exit_code -eq 0 ]; then
         echo "Tests passed"
       elif [ $exit_code -eq 130 ]; then

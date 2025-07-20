@@ -1,5 +1,5 @@
 name: Playwright Custom Tests - Single Tenant Based
-run-name: Running custom tests with '${{ inputs.custom-regex }}' regex, '${{ inputs.custom-test-location }}' location, '${{ inputs.business-tenant }}' tenant and '${{ inputs.env-config }}' configuration - ghid-${{ github.run_id }}-${{ github.run_attempt }}
+run-name: Running custom tests with '${{ inputs.custom-test-location }}' location, '${{ inputs.env-config }}' configuration and '${{ inputs.test-scope }}' test scope - ghid-${{ github.run_id }}-${{ github.run_attempt }}
 on:
  workflow_dispatch:
   inputs:
@@ -38,7 +38,7 @@ on:
     required: true
     type: string
     default: 'tests'
-
+ 
 jobs:
  playwright-custom-tests:
   uses: ./.github/workflows/playwright-reusable.yml
@@ -48,3 +48,5 @@ jobs:
    job-timeout-mins: ${{ fromJSON(inputs.job-timeout-mins) }}
    matrix-shards-json: ${{ inputs.matrix-shards-json }}
    custom-test-location: ${{ inputs.custom-test-location }}
+  secrets:
+   ZIP_ARTIFACTS_PASSWORD: ${{ secrets.ZIP_ARTIFACTS_PASSWORD }}
