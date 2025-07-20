@@ -1,5 +1,4 @@
 import { test, expect } from '@fixture/page';
-import { G_CONFIG } from '@config/G_CONFIG';
 import { ENVTag, ScopeTag, TenantTag } from 'enums/Tags';
 
 
