@@ -1,14 +1,8 @@
 name: ~ Playwright Reusable Custom Tenant, Tests Location & Regex Based Workflow
-run-name: Running tests from location '${{ inputs.custom-test-location }}' limited by '${{ inputs.custom-regex }}' regex on '${{ inputs.business-tenant }}' tenant with '${{ inputs.env-config }}' configuration - ghid-${{ github.run_id }}-${{ github.run_attempt }}
+run-name: Running tests from location '${{ inputs.custom-test-location }}'  with '${{ inputs.env-config }}' configuration - ghid-${{ github.run_id }}-${{ github.run_attempt }}
 on:
  workflow_call:
   inputs:
-   business-tenant:
-    description: 'Business tenant to run tests against it'
-    required: true
-    default: 'orange'
-    type: string
-
    env-config:
     description: 'App environment configuration to run tests against it'
     required: true
@@ -39,12 +33,6 @@ on:
     type: string
     default: 'tests'
 
-   custom-regex:
-    description: 'Regular expression to filter tests out of provided tests location'
-    required: true
-    type: string
-    default: '.*'
-
 jobs:
  playwright-tests:
   timeout-minutes: ${{ inputs.job-timeout-mins }}
@@ -67,9 +55,9 @@ jobs:
    - name: Run Playwright tests
      env:
       TESTS_ENV_CONFIG: ${{ inputs.env-config }}
-      PWTEST_BLOB_REPORT_NAME: ${{ inputs.business-tenant }}
+      PWTEST_BLOB_REPORT_NAME: ${{ inputs.env-config }}
      run: |
-      npx playwright test ${{ inputs.custom-test-location}} --grep "(?=.*@${{ inputs.business-tenant }})(?=.*@${{ inputs.env-config }})(?=.*@${{ inputs.test-scope }})"  --shard ${{ matrix.shard }} --workers 1
+      npx playwright test ${{ inputs.custom-test-location}} --grep "(?=.*@${{ inputs.business-tenant }})(?=.*@${{ inputs.test-scope }})"  --shard ${{ matrix.shard }} --workers 1
       if [ $exit_code -eq 0 ]; then
         echo "Tests passed"
       elif [ $exit_code -eq 130 ]; then

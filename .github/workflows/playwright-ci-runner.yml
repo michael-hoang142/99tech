@@ -1,0 +1,53 @@
+name: Playwright Custom Tests - Single Tenant Based
+run-name: Running custom tests with '${{ inputs.custom-regex }}' regex, '${{ inputs.custom-test-location }}' location, '${{ inputs.business-tenant }}' tenant and '${{ inputs.env-config }}' configuration - ghid-${{ github.run_id }}-${{ github.run_attempt }}
+on:
+ workflow_dispatch:
+  inputs:
+   env-config:
+    description: 'App environment configuration to run tests against it'
+    required: true
+    default: 'orange-hrm-demo'
+    type: choice
+    options:
+     - orange-hrm-demo
+     - orange-hrm-uat
+
+   test-scope:
+    description: 'Test scope to run tests against it'
+    required: true
+    default: 'regression'
+    type: choice
+    options:
+     - regression
+     - smoke
+
+   job-timeout-mins:
+    description: 'Timeout for running custom test on separate tenant'
+    required: false
+    default: 10
+    type: number
+
+   matrix-shards-json:
+    description: 'Test shards matrix in JSON format'
+    default: '{"shard":["1/2", "2/2"]}'
+    type: string
+    required: false 
+
+   custom-test-location:
+    description: 'Files (or folder) to filter tests - path from the project root'
+    required: true
+    type: string
+    default: 'tests'
+
+jobs:
+ playwright-custom-tests:
+  uses: ./.github/workflows/playwright-reusable.yml
+  with:
+   business-tenant: ${{ inputs.business-tenant }}
+   env-config: ${{ inputs.env-config }}
+   custom-test-location: ${{ inputs.custom-test-location }}
+   custom-regex: ${{ inputs.custom-regex }}
+   matrix-shards-json: ${{ inputs.matrix-shards-json }}
+   job-timeout-mins: ${{ fromJSON(inputs.job-timeout-mins) }}
+  
+   secrets: inherit
